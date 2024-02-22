@@ -7,6 +7,7 @@ version: '1.0.0'
 config-version: 2
 vars:
   city: 'Paris'
+  dbt_dq_tool_schema: AUDIT
 
 # This setting configures which "profile" dbt uses for this project.
 profile: 'default'
@@ -44,14 +45,15 @@ clean-targets:         # directories to be removed by `dbt clean`
   
 
 models:
+  
+
   +pre-hook: 
     - "insert into qwt.audit.qwt_models_audit(modelname,starttime,endtime,duration) values('{{this}}',current_timestamp(),null,null);"
   +post-hook: 
     - "update qwt.audit.qwt_models_audit set endtime = current_timestamp(),duration = datediff('second',starttime,current_timestamp()) where modelname = '{{this}}';"
-  
+on-run-end:
+  - '{{ dq_tools.store_test_results(results) }}'  
     
-  +materialized: table
-seeds:
-  +schema: qwt_seeds 
+
 
        

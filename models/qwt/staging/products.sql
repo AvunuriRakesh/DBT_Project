@@ -9,4 +9,4 @@ select
     unitprice,
     unitsinstock,
     unitsonorder
-from {{ source('raw', 'products') }}
+from {{env_var('dbt_sourcedb','qwt')}}.{{env_var('dbt_sourceschema','raw')}}.products

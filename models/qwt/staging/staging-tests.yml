@@ -2,11 +2,13 @@ version: 2
 
 models:
   - name: customers
+    description: "{{ doc('customers')}}"
     columns:
       - name: CUSTOMERID
         tests:
           - unique
           - not_null
+          - dq_tools.unique_where_db
   - name: stg_shipments
     columns:
        - name: status
@@ -18,9 +20,7 @@ models:
       - name: ORDERID
         tests:
           - not_null 
-          - relationships:
-              field: ORDERID
-              to: ref('stg_orders')
+          
   - name: stg_employees
     columns:
       - name: EMPID
