@@ -1,0 +1,33 @@
+version: 2
+
+models:
+  - name: customers
+    description: "{{ doc('customers')}}"
+    columns:
+      - name: CUSTOMERID
+        tests:
+          - unique
+          - not_null
+          - dq_tools.unique_where_db
+  - name: stg_shipments
+    columns:
+       - name: status
+         tests:
+          - accepted_values:
+              values: ['replaced', 'shipped', 'ordered', 'delivered', 'returned']
+  - name: stg_orderdetails
+    columns:
+      - name: ORDERID
+        tests:
+          - not_null 
+          
+  - name: stg_employees
+    columns:
+      - name: EMPID
+        tests:
+          - unique
+          - not_null
+          - is_even
+
+
+

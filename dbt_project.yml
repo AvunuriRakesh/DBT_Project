@@ -5,9 +5,14 @@
 name: 'my_new_project'
 version: '1.0.0'
 config-version: 2
+vars:
+  city: 'Paris'
+  dbt_dq_tool_schema: AUDIT
 
 # This setting configures which "profile" dbt uses for this project.
 profile: 'default'
+
+
 
 # These configurations specify where dbt should look for different types of files.
 # The `model-paths` config, for example, states that models in this project can be
@@ -35,8 +40,20 @@ clean-targets:         # directories to be removed by `dbt clean`
 # continue to be built as views. These settings can be overridden in the individual model files
 # using the `{{ config(...) }}` macro.
 
+#on-run-start: "use warehouse compute_wh"
+#on-run-end: "alter warehouse compute_wh suspend"
+  
+
 models:
-  my_new_project:
-    # Applies to all files under models/example/
-    example:
-      +materialized: table
+  
+
+  +pre-hook: 
+    - "insert into {{env_var('DBT_SOURCEDB','QWT')}}.{{env_var('DBT_AUDITSCHEMA','AUDIT')}}.qwt_models_audit(modelname,starttime,endtime,duration) values('{{this}}',current_timestamp(),null,null);"
+  +post-hook: 
+    - "update {{env_var('DBT_SOURCEDB','QWT')}}.{{env_var('DBT_AUDITSCHEMA','AUDIT')}}.qwt_models_audit set endtime = current_timestamp(),duration = datediff('second',starttime,current_timestamp()) where modelname = '{{this}}';"
+on-run-end:
+  - '{{ dq_tools.store_test_results(results) }}'  
+    
+
+
+       
